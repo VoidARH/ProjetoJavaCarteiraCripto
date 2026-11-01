@@ -8,6 +8,9 @@ package model;
  *
  * @author void
  */
-public class teste {
-    
+public class Ethereum extends Moedas implements Tarifacao {
+    public Ethereum(double saldo) { super("ETH", saldo); }
+
+    @Override public double taxaCompra() { return 0.01; }
+    @Override public double taxaVenda()  { return 0.02; }
 }
