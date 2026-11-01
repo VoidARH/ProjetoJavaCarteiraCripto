@@ -15,8 +15,30 @@ public class menu extends javax.swing.JFrame {
     /**
      * Creates new form menu
      */
+    private model.Investidor investidor; // quem fez login
+
     public menu() {
         initComponents();
+        bt_sair.addActionListener(e -> sair());
+    }
+    
+    /** Encerra a sessão e volta para a tela de login. */
+    private void sair() {
+        int op = javax.swing.JOptionPane.showConfirmDialog(this,
+                "Deseja sair da sua conta?", "Sair",
+                javax.swing.JOptionPane.YES_NO_OPTION);
+        if (op != javax.swing.JOptionPane.YES_OPTION) {
+            return;
+        }
+        investidor = null;                 // esquece quem estava logado
+        new login().setVisible(true);      // nova tela de login (com campos limpos)
+        this.dispose();                    // fecha o menu
+    }
+
+    public menu(model.Investidor investidor) {
+        this();
+        this.investidor = investidor;
+        setLocationRelativeTo(null);
     }
 
     /**

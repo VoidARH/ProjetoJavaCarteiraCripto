@@ -17,8 +17,35 @@ public class login extends javax.swing.JFrame {
      */
 public login() {
     initComponents();
+    setLocationRelativeTo(null); // centraliza a janela
 
+    // Texto de dica: some ao clicar e fica cinza
+    Placeholder.aplicar(txt_usuario, "Digite seu CPF (só números)...");
+    Placeholder.aplicar(txt_senha, "Digite sua senha (6 dígitos)...");
+
+    // Evita que o primeiro campo receba o foco (e apague a dica) ao abrir
+    javax.swing.SwingUtilities.invokeLater(() -> getContentPane().requestFocusInWindow());
+
+    // Ações de login (Enter nos campos ou clique no botão)
+    bt_login.addActionListener(e -> entrar());
+    txt_usuario.addActionListener(e -> entrar());
+    txt_senha.addActionListener(e -> entrar());
 }
+
+    /** Lê os campos, valida pelo controller e abre o menu (ou mostra o erro). */
+    private void entrar() {
+        String cpf = Placeholder.getTexto(txt_usuario).trim();
+        String senha = Placeholder.getTexto(txt_senha);
+
+        try {
+            model.Investidor inv = new controller.loginController().autenticar(cpf, senha);
+            new menu(inv).setVisible(true);
+            this.dispose();
+        } catch (IllegalArgumentException ex) {
+            javax.swing.JOptionPane.showMessageDialog(this, ex.getMessage(),
+                    "Erro de login", javax.swing.JOptionPane.ERROR_MESSAGE);
+        }
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -97,6 +124,10 @@ public login() {
     /**
      * @param args the command line arguments
      */
+    public static void main(String args[]) {
+        java.awt.EventQueue.invokeLater(() -> new login().setVisible(true));
+    }
+
 //    public static void main(String args[]) {
 //        /* Set the Nimbus look and feel */
 //        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
