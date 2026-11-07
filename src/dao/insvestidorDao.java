@@ -13,30 +13,32 @@ import model.carteira;
 import model.Investidor;
 
 /**
+ * Acesso ao banco para investidores (tabela "usuario" do template, com tipo = 'investidor').
  *
  * @author void
  */
-
-/** Acesso ao banco para investidores. **/
 public class insvestidorDao {
 
+    /**
+     * Busca um investidor (e os saldos da carteira) pelo CPF.
+     *
+     * @param cpf CPF só com números
+     * @return o investidor, ou null se não existir
+     * @throws SQLException se der erro no banco
+     */
     public Investidor buscarPorCpf(String cpf) throws SQLException {
-        String sql = "SELECT i.nome, i.cpf, i.senha, c.reais, c.bitcoin, c.ethereum, c.ripple "
-                   + "FROM investidor i JOIN carteira c ON c.cpf = i.cpf WHERE i.cpf = ?";
+        String sql = "SELECT nome, cpf, senha, saldo_reais, saldo_bitcoin, saldo_ethereum, saldo_ripple "
+                   + "FROM usuario WHERE cpf = ? AND tipo = 'investidor'";
         try (Connection con = conexaoSql.abrir();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, cpf);
             try (ResultSet rs = ps.executeQuery()) {
                 if (!rs.next()) return null;
-                carteira cart = new carteira(rs.getDouble("reais"), rs.getDouble("bitcoin"),
-                                             rs.getDouble("ethereum"), rs.getDouble("ripple"));
+                carteira cart = new carteira(rs.getDouble("saldo_reais"), rs.getDouble("saldo_bitcoin"),
+                                             rs.getDouble("saldo_ethereum"), rs.getDouble("saldo_ripple"));
                 return new Investidor(rs.getString("nome"), rs.getString("cpf"),
                                       rs.getString("senha"), cart);
             }
         }
     }
-
-    // ---- PARA VOCÊ IMPLEMENTAR (só se for dupla) ---------------------------
-    // TODO: inserir(Investidor)  -> INSERT em investidor + INSERT em carteira (uma transação)
-    // TODO: excluir(String cpf)  -> DELETE FROM investidor WHERE cpf = ?
 }

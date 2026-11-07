@@ -21,6 +21,11 @@ public class menu extends javax.swing.JFrame {
         initComponents();
         bt_sair.addActionListener(e -> sair());
         bt_saldo.addActionListener(e -> consultarSaldo());
+        bt_extrato.addActionListener(e -> consultarExtrato());
+        bt_deposito.addActionListener(e -> abrir(new depositar(investidor)));
+        bt_sacar.addActionListener(e -> abrir(new sacar(investidor)));
+        bt_operacao.addActionListener(e -> operarCripto());
+        bt_atualizar.addActionListener(e -> atualizarCotacao());
     }
     
     /** Encerra a sessão e volta para a tela de login. */
@@ -32,7 +37,7 @@ public class menu extends javax.swing.JFrame {
             return;
         }
         investidor = null;                 // esquece quem estava logado
-        new login().setVisible(true);      // nova tela de login (com campos limpos)
+        new Login().setVisible(true);      // nova tela de login (com campos limpos)
         this.dispose();                    // fecha o menu
     }
 
@@ -73,6 +78,59 @@ private void consultarSaldo() {
             "Saldo", javax.swing.JOptionPane.INFORMATION_MESSAGE);
 }
 
+/** Pede a senha e, se estiver correta, abre o extrato. **/
+private void consultarExtrato() {
+    if (senhaConfere()) {
+        abrir(new extrato(investidor));
+    }
+}
+
+/** Pede a senha e, se estiver correta, abre a tela de compra e venda. **/
+private void operarCripto() {
+    if (senhaConfere()) {
+        abrir(new operacao(investidor));
+    }
+}
+
+/** Sorteia a nova cotação das 3 moedas (variação de no máximo 5%) e mostra o resultado. **/
+private void atualizarCotacao() {
+    try {
+        String texto = new controller.cotacaoController().atualizarCotacoes();
+        javax.swing.JOptionPane.showMessageDialog(this, texto,
+                "Cotações atualizadas", javax.swing.JOptionPane.INFORMATION_MESSAGE);
+    } catch (java.sql.SQLException ex) {
+        javax.swing.JOptionPane.showMessageDialog(this, "Erro no banco de dados: " + ex.getMessage(),
+                "Erro", javax.swing.JOptionPane.ERROR_MESSAGE);
+    }
+}
+
+/** Pede a senha; mostra "Senha incorreta!" se errar. @return true se a senha confere **/
+private boolean senhaConfere() {
+    String senha = pedirSenha();
+    if (senha == null) {
+        return false; // cancelou
+    }
+    if (!new controller.carteiraController(investidor).senhaConfere(senha)) {
+        javax.swing.JOptionPane.showMessageDialog(this, "Senha incorreta!",
+                "Erro", javax.swing.JOptionPane.ERROR_MESSAGE);
+        return false;
+    }
+    return true;
+}
+
+/** Mostra a tela e deixa o menu travado até ela ser fechada. **/
+private void abrir(javax.swing.JFrame tela) {
+    setEnabled(false);
+    tela.addWindowListener(new java.awt.event.WindowAdapter() {
+        @Override
+        public void windowClosed(java.awt.event.WindowEvent e) {
+            setEnabled(true);
+            toFront();
+        }
+    });
+    tela.setVisible(true);
+}
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -96,7 +154,7 @@ private void consultarSaldo() {
 
         bt_sair.setText("Sair");
 
-        bt_deposito.setText("Deposito");
+        bt_deposito.setText("Depósito");
 
         bt_atualizar.setText("Atualizar cotação");
 
@@ -152,31 +210,6 @@ private void consultarSaldo() {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ReflectiveOperationException | javax.swing.UnsupportedLookAndFeelException ex) {
-            logger.log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(() -> new menu().setVisible(true));
-    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton bt_atualizar;

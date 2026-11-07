@@ -19,33 +19,42 @@ public class cotacaoDao {
      * @throws SQLException se der erro no banco ou a moeda não existir na tabela
      */
     public double buscar(String moeda) throws SQLException {
-        String sql = "SELECT valor FROM cotacao WHERE moeda = ?";
+        String sql = "SELECT valor_reais FROM cotacao WHERE moeda = ?";
         try (Connection con = conexaoSql.abrir();
              PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setString(1, moeda);                       // troca o "?" pela sigla
+            ps.setString(1, moeda);
             try (ResultSet rs = ps.executeQuery()) {
-                if (!rs.next()) {                         // nenhuma linha encontrada
+                if (!rs.next()) {
                     throw new SQLException("Moeda sem cotação cadastrada: " + moeda);
                 }
-                return rs.getDouble("valor");
+                return rs.getDouble("valor_reais");
             }
         }
     }
 
     /**
-     * Grava o novo valor de uma moeda.
+     * Grava o novo valor de várias moedas de uma vez, na mesma transação:
+     * ou todas são atualizadas, ou nenhuma.
      *
-     * @param moeda sigla da moeda
-     * @param valor novo valor em reais
+     * @param moedas siglas das moedas
+     * @param valores novos valores em reais (mesma ordem de {@code moedas})
      * @throws SQLException se der erro no banco
      */
-    public void salvar(String moeda, double valor) throws SQLException {
-        String sql = "UPDATE cotacao SET valor = ? WHERE moeda = ?";
-        try (Connection con = conexaoSql.abrir();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setDouble(1, valor);
-            ps.setString(2, moeda);
-            ps.executeUpdate();
+    public void salvarTodas(String[] moedas, double[] valores) throws SQLException {
+        String sql = "UPDATE cotacao SET valor_reais = ? WHERE moeda = ?";
+        try (Connection con = conexaoSql.abrir()) {
+            con.setAutoCommit(false);
+            try (PreparedStatement ps = con.prepareStatement(sql)) {
+                for (int i = 0; i < moedas.length; i++) {
+                    ps.setDouble(1, valores[i]);
+                    ps.setString(2, moedas[i]);
+                    ps.executeUpdate();
+                }
+                con.commit();
+            } catch (SQLException e) {
+                con.rollback();
+                throw e;
+            }
         }
     }
 }

@@ -2,6 +2,7 @@ package controller;
 
 import dao.cotacaoDao;
 import java.sql.SQLException;
+import java.util.Locale;
 import java.util.Random;
 
 /**
@@ -14,8 +15,10 @@ public class cotacaoController {
 
     /** Variação máxima permitida pelo enunciado: 5% para cima ou para baixo. */
     private static final double LIMITE = 0.05;
-    /** Casas decimais guardadas no banco (coluna NUMERIC(15,4)). */
+    /** Casas decimais guardadas no banco (coluna NUMERIC(20,8)). */
     private static final double ESCALA = 10000.0;
+
+    private static final Locale BR = Locale.forLanguageTag("pt-BR");
 
     private final cotacaoDao dao = new cotacaoDao();
     private final Random random = new Random();
@@ -52,9 +55,7 @@ public class cotacaoController {
         for (int i = 0; i < MOEDAS.length; i++) {
             novos[i] = novoValor(dao.buscar(MOEDAS[i]), random.nextDouble());
         }
-        for (int i = 0; i < MOEDAS.length; i++) {
-            dao.salvar(MOEDAS[i], novos[i]);
-        }
+        dao.salvarTodas(MOEDAS, novos);   // numa transação só: ou atualiza as 3 ou nenhuma
         return textoCotacoes();
     }
 
@@ -65,9 +66,19 @@ public class cotacaoController {
      * @throws SQLException se der erro no banco
      */
     public String textoCotacoes() throws SQLException {
-        StringBuilder sb = new StringBuilder("Cotações atuais:\n\n");
+        return "Cotações atuais:\n\n" + linhasCotacoes();
+    }
+
+    /**
+     * Monta só as linhas das cotações atuais, sem título (usado na tela de compra e venda).
+     *
+     * @return uma linha por moeda, ex.: "Bitcoin: R$ 350000,00"
+     * @throws SQLException se der erro no banco
+     */
+    public String linhasCotacoes() throws SQLException {
+        StringBuilder sb = new StringBuilder();
         for (int i = 0; i < MOEDAS.length; i++) {
-            sb.append(String.format("%s: R$ %.2f%n", NOMES[i], dao.buscar(MOEDAS[i])));
+            sb.append(String.format(BR, "%s: R$ %.2f%n", NOMES[i], dao.buscar(MOEDAS[i])));
         }
         return sb.toString();
     }

@@ -5,18 +5,33 @@
 package view;
 
 /**
+ * Tela de depósito: o investidor informa o valor e vê os saldos atualizados.
  *
  * @author void
  */
 public class depositar extends javax.swing.JFrame {
-    
+
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(depositar.class.getName());
+
+    private model.Investidor investidor; // quem fez login
 
     /**
      * Creates new form depositar
      */
     public depositar() {
         initComponents();
+        setLocationRelativeTo(null);
+    }
+
+    /**
+     * Abre a tela para o investidor logado.
+     *
+     * @param investidor quem fez login
+     */
+    public depositar(model.Investidor investidor) {
+        this();
+        this.investidor = investidor;
+        getRootPane().setDefaultButton(bt_confirmar);
     }
 
     /**
@@ -28,47 +43,79 @@ public class depositar extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        lbl_valor = new javax.swing.JLabel();
+        txt_valor = new javax.swing.JTextField();
+        bt_confirmar = new javax.swing.JButton();
+        bt_cancelar = new javax.swing.JButton();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setTitle("Depositar");
+
+        lbl_valor.setText("Valor do depósito (R$):");
+
+        bt_confirmar.setText("Depositar");
+        bt_confirmar.addActionListener(this::bt_confirmarActionPerformed);
+
+        bt_cancelar.setText("Cancelar");
+        bt_cancelar.addActionListener(this::bt_cancelarActionPerformed);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(lbl_valor)
+                    .addComponent(txt_valor, javax.swing.GroupLayout.DEFAULT_SIZE, 260, Short.MAX_VALUE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(bt_confirmar)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(bt_cancelar)))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(lbl_valor)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(txt_valor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(bt_confirmar)
+                    .addComponent(bt_cancelar))
+                .addContainerGap())
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
+    private void bt_confirmarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bt_confirmarActionPerformed
         try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ReflectiveOperationException | javax.swing.UnsupportedLookAndFeelException ex) {
-            logger.log(java.util.logging.Level.SEVERE, null, ex);
+            double valor = controller.carteiraController.lerValor(txt_valor.getText());
+            String saldos = new controller.carteiraController(investidor).depositar(valor);
+            javax.swing.JOptionPane.showMessageDialog(this, saldos,
+                    "Saldos atualizados", javax.swing.JOptionPane.INFORMATION_MESSAGE);
+            dispose();
+        } catch (IllegalArgumentException ex) {
+            javax.swing.JOptionPane.showMessageDialog(this, ex.getMessage(),
+                    "Erro", javax.swing.JOptionPane.ERROR_MESSAGE);
+        } catch (java.sql.SQLException ex) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Erro no banco de dados: " + ex.getMessage(),
+                    "Erro", javax.swing.JOptionPane.ERROR_MESSAGE);
         }
-        //</editor-fold>
+    }//GEN-LAST:event_bt_confirmarActionPerformed
 
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(() -> new depositar().setVisible(true));
-    }
+    private void bt_cancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bt_cancelarActionPerformed
+        dispose();
+    }//GEN-LAST:event_bt_cancelarActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton bt_cancelar;
+    private javax.swing.JButton bt_confirmar;
+    private javax.swing.JLabel lbl_valor;
+    private javax.swing.JTextField txt_valor;
     // End of variables declaration//GEN-END:variables
 }

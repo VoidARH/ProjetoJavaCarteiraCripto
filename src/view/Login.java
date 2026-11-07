@@ -8,14 +8,14 @@ package view;
  *
  * @author void
  */
-public class login extends javax.swing.JFrame {
+public class Login extends javax.swing.JFrame {
     
-    private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(login.class.getName());
+    private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(Login.class.getName());
 
     /**
-     * Creates new form login
+     * Creates new form Login
      */
-public login() {
+public Login() {
     initComponents();
     setLocationRelativeTo(null); // centraliza a janela
 
@@ -58,7 +58,7 @@ public login() {
 
         bt_login = new javax.swing.JButton();
         txt_usuario = new javax.swing.JTextField();
-        txt_senha = new javax.swing.JTextField();
+        txt_senha = new javax.swing.JPasswordField();
         lbl_1 = new javax.swing.JLabel();
         lbl_2 = new javax.swing.JLabel();
 
@@ -121,40 +121,11 @@ public login() {
         // TODO add your handling code here:
     }//GEN-LAST:event_txt_senhaActionPerformed
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        java.awt.EventQueue.invokeLater(() -> new login().setVisible(true));
-    }
-
-//    public static void main(String args[]) {
-//        /* Set the Nimbus look and feel */
-//        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-//        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-//         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-//         */
-//        try {
-//            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-//                if ("Nimbus".equals(info.getName())) {
-//                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-//                    break;
-//                }
-//            }
-//        } catch (ReflectiveOperationException | javax.swing.UnsupportedLookAndFeelException ex) {
-//            logger.log(java.util.logging.Level.SEVERE, null, ex);
-//        }
-//        //</editor-fold>
-//
-//        /* Create and display the form */
-//        java.awt.EventQueue.invokeLater(() -> new login().setVisible(true));
-//    }
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton bt_login;
     private javax.swing.JLabel lbl_1;
     private javax.swing.JLabel lbl_2;
-    private javax.swing.JTextField txt_senha;
+    private javax.swing.JPasswordField txt_senha;
     private javax.swing.JTextField txt_usuario;
     // End of variables declaration//GEN-END:variables
 }

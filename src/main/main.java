@@ -4,16 +4,17 @@
  */
 package main;
 
-import view.login;
+import view.Login;
 
 /**
  *
  * @author void
  */
-
 public class main {
 
     public static void main(String[] args) {
-        java.awt.EventQueue.invokeLater(() -> new login().setVisible(true));
+        Login view = new Login();
+        view.setVisible(true);
+        view.setLocationRelativeTo(null);
     }
 }

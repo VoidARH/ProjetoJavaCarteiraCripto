@@ -5,18 +5,44 @@
 package view;
 
 /**
+ * Tela do extrato de operações do investidor.
  *
  * @author void
  */
 public class extrato extends javax.swing.JFrame {
-    
+
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(extrato.class.getName());
+
+    private model.Investidor investidor; // quem fez login
 
     /**
      * Creates new form extrato
      */
     public extrato() {
         initComponents();
+        setLocationRelativeTo(null);
+    }
+
+    /**
+     * Abre a tela para o investidor logado.
+     *
+     * @param investidor quem fez login
+     */
+    public extrato(model.Investidor investidor) {
+        this();
+        this.investidor = investidor;
+        carregar();
+    }
+
+    /** Busca o extrato no banco e mostra na tela. */
+    private void carregar() {
+        try {
+            txt_extrato.setText(new controller.carteiraController(investidor).consultarExtrato());
+            txt_extrato.setCaretPosition(0);
+        } catch (java.sql.SQLException ex) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Erro no banco de dados: " + ex.getMessage(),
+                    "Erro", javax.swing.JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     /**
@@ -28,47 +54,54 @@ public class extrato extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        jScrollPane1 = new javax.swing.JScrollPane();
+        txt_extrato = new javax.swing.JTextArea();
+        bt_fechar = new javax.swing.JButton();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setTitle("Extrato");
+
+        txt_extrato.setEditable(false);
+        txt_extrato.setColumns(110);
+        txt_extrato.setFont(new java.awt.Font("Monospaced", 0, 12)); // NOI18N
+        txt_extrato.setRows(16);
+
+        jScrollPane1.setViewportView(txt_extrato);
+
+        bt_fechar.setText("Fechar");
+        bt_fechar.addActionListener(this::bt_fecharActionPerformed);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(bt_fechar))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(bt_fechar)
+                .addContainerGap())
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ReflectiveOperationException | javax.swing.UnsupportedLookAndFeelException ex) {
-            logger.log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(() -> new extrato().setVisible(true));
-    }
+    private void bt_fecharActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bt_fecharActionPerformed
+        dispose();
+    }//GEN-LAST:event_bt_fecharActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton bt_fechar;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTextArea txt_extrato;
     // End of variables declaration//GEN-END:variables
 }
