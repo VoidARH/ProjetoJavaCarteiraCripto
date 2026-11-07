@@ -20,6 +20,7 @@ public class menu extends javax.swing.JFrame {
     public menu() {
         initComponents();
         bt_sair.addActionListener(e -> sair());
+        bt_saldo.addActionListener(e -> consultarSaldo());
     }
     
     /** Encerra a sessão e volta para a tela de login. */
@@ -40,6 +41,37 @@ public class menu extends javax.swing.JFrame {
         this.investidor = investidor;
         setLocationRelativeTo(null);
     }
+    
+ /**
+ Pede a senha numa caixinha
+ @return a senha digitada, ou null se a pessoa cancelou
+ **/
+private String pedirSenha() {
+    javax.swing.JPasswordField campo = new javax.swing.JPasswordField();
+    int op = javax.swing.JOptionPane.showConfirmDialog(this, campo,
+            "Digite sua senha (6 dígitos):",
+            javax.swing.JOptionPane.OK_CANCEL_OPTION, javax.swing.JOptionPane.PLAIN_MESSAGE);
+    if (op != javax.swing.JOptionPane.OK_OPTION) {
+        return null;
+    }
+    return new String(campo.getPassword());
+}
+
+/** Pede a senha e, se estiver correta, mostra o saldo da carteira. **/
+private void consultarSaldo() {
+    String senha = pedirSenha();
+    if (senha == null) {
+        return; // cancelou
+    }
+    controller.carteiraController ctrl = new controller.carteiraController(investidor);
+    if (!ctrl.senhaConfere(senha)) {
+        javax.swing.JOptionPane.showMessageDialog(this, "Senha incorreta!",
+                "Erro", javax.swing.JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+    javax.swing.JOptionPane.showMessageDialog(this, ctrl.textoSaldo(),
+            "Saldo", javax.swing.JOptionPane.INFORMATION_MESSAGE);
+}
 
     /**
      * This method is called from within the constructor to initialize the form.
