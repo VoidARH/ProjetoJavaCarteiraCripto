@@ -28,7 +28,7 @@ public class insvestidorDao {
      */
     public Investidor buscarPorCpf(String cpf) throws SQLException {
         String sql = "SELECT nome, cpf, senha, saldo_reais, saldo_bitcoin, saldo_ethereum, saldo_ripple "
-                   + "FROM usuario WHERE cpf = ? AND tipo = 'investidor'";
+           + "FROM usuario WHERE TRIM(cpf) = ? AND LOWER(TRIM(COALESCE(tipo, ''))) <> 'administrador'";
         try (Connection con = conexaoSql.abrir();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, cpf);
