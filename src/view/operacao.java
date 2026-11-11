@@ -4,6 +4,10 @@
  */
 package view;
 
+import controller.OperacaoException;
+import controller.carteiraController;
+import controller.cotacaoController;
+
 /**
  * Tela de compra e venda de criptomoedas (mostra as cotações e aplica a taxa).
  *
@@ -13,35 +17,27 @@ public class operacao extends javax.swing.JFrame {
 
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(operacao.class.getName());
 
-    private model.Investidor investidor; // quem fez login
+    /** Controller do investidor logado (a tela não conhece o model). */
+    private carteiraController ctrl;
+    private final cotacaoController cotacoes = new cotacaoController();
 
-    /**
-     * Creates new form operacao
-     */
     public operacao() {
-        initComponents();
-        setLocationRelativeTo(null);
+        this.initComponents();
+        this.setLocationRelativeTo(null);
     }
 
-    /**
-     * Abre a tela para o investidor logado.
-     *
-     * @param investidor quem fez login
-     */
-    public operacao(model.Investidor investidor) {
+    public operacao(carteiraController ctrl) {
         this();
-        this.investidor = investidor;
-        mostrarCotacoes();
-        getRootPane().setDefaultButton(bt_confirmar);
+        this.ctrl = ctrl;
+        this.mostrarCotacoes();
+        this.getRootPane().setDefaultButton(this.bt_confirmar);
     }
 
-    /** Mostra as cotações atuais (lidas do banco). */
     private void mostrarCotacoes() {
         try {
-            txt_cotacoes.setText(new controller.cotacaoController().linhasCotacoes());
-        } catch (java.sql.SQLException ex) {
-            javax.swing.JOptionPane.showMessageDialog(this, "Erro no banco de dados: " + ex.getMessage(),
-                    "Erro", javax.swing.JOptionPane.ERROR_MESSAGE);
+            this.txt_cotacoes.setText(this.cotacoes.linhasCotacoes());
+        } catch (OperacaoException ex) {
+            Mensagem.erro(this, ex.getMessage());
         }
     }
 
@@ -148,28 +144,19 @@ public class operacao extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void bt_confirmarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bt_confirmarActionPerformed
-        String[] siglas = {"BTC", "ETH", "XRP"};
-        String sigla = siglas[cb_moeda.getSelectedIndex()];
         try {
-            double quantidade = controller.carteiraController.lerValor(txt_quantidade.getText());
-            controller.carteiraController ctrl = new controller.carteiraController(investidor);
-            String saldos = cb_tipo.getSelectedIndex() == 0
-                    ? ctrl.comprar(sigla, quantidade)
-                    : ctrl.vender(sigla, quantidade);
-            javax.swing.JOptionPane.showMessageDialog(this, saldos,
-                    "Saldos atualizados", javax.swing.JOptionPane.INFORMATION_MESSAGE);
-            dispose();
-        } catch (IllegalArgumentException ex) {
-            javax.swing.JOptionPane.showMessageDialog(this, ex.getMessage(),
-                    "Erro", javax.swing.JOptionPane.ERROR_MESSAGE);
-        } catch (java.sql.SQLException ex) {
-            javax.swing.JOptionPane.showMessageDialog(this, "Erro no banco de dados: " + ex.getMessage(),
-                    "Erro", javax.swing.JOptionPane.ERROR_MESSAGE);
+            // a tela só informa o que foi escolhido; o controller decide o que fazer
+            String saldos = this.ctrl.operar(this.cb_tipo.getSelectedIndex(),
+                    this.cb_moeda.getSelectedIndex(), this.txt_quantidade.getText());
+            Mensagem.info(this, saldos, "Saldos atualizados");
+            this.dispose();
+        } catch (OperacaoException ex) {
+            Mensagem.erro(this, ex.getMessage());
         }
     }//GEN-LAST:event_bt_confirmarActionPerformed
 
     private void bt_cancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bt_cancelarActionPerformed
-        dispose();
+        this.dispose();
     }//GEN-LAST:event_bt_cancelarActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

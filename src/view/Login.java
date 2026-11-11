@@ -4,6 +4,10 @@
  */
 package view;
 
+import controller.OperacaoException;
+import controller.carteiraController;
+import controller.loginController;
+
 /**
  *
  * @author void
@@ -12,38 +16,36 @@ public class Login extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(Login.class.getName());
 
-    /**
-     * Creates new form Login
-     */
-public Login() {
-    initComponents();
-    setLocationRelativeTo(null); // centraliza a janela
+    private final loginController login = new loginController();
 
-    // Texto de dica: some ao clicar e fica cinza
-    Placeholder.aplicar(txt_usuario, "Digite seu CPF (só números)...");
-    Placeholder.aplicar(txt_senha, "Digite sua senha (6 dígitos)...");
+    public Login() {
+        this.initComponents();
+        this.setLocationRelativeTo(null); // centraliza a janela
 
-    // Evita que o primeiro campo receba o foco (e apague a dica) ao abrir
-    javax.swing.SwingUtilities.invokeLater(() -> getContentPane().requestFocusInWindow());
+        // Texto de dica: some ao clicar e fica cinza
+        Placeholder.aplicar(this.txt_usuario, "Digite seu CPF (só números)...");
+        Placeholder.aplicar(this.txt_senha, "Digite sua senha (6 dígitos)...");
 
-    // Ações de login (Enter nos campos ou clique no botão)
-    bt_login.addActionListener(e -> entrar());
-    txt_usuario.addActionListener(e -> entrar());
-    txt_senha.addActionListener(e -> entrar());
-}
+        // Evita que o primeiro campo receba o foco (e apague a dica) ao abrir
+        javax.swing.SwingUtilities.invokeLater(() -> this.getContentPane().requestFocusInWindow());
 
-    /** Lê os campos, valida pelo controller e abre o menu (ou mostra o erro). */
+        // Ações de login (Enter nos campos ou clique no botão)
+        this.bt_login.addActionListener(e -> this.entrar());
+        this.txt_usuario.addActionListener(e -> this.entrar());
+        this.txt_senha.addActionListener(e -> this.entrar());
+    }
+
+    /** Lê os campos, pede ao controller para autenticar e abre o menu (ou mostra o erro). */
     private void entrar() {
-        String cpf = Placeholder.getTexto(txt_usuario).trim();
-        String senha = Placeholder.getTexto(txt_senha);
+        String cpf = Placeholder.getTexto(this.txt_usuario).trim();
+        String senha = Placeholder.getTexto(this.txt_senha);
 
         try {
-            model.Investidor inv = new controller.loginController().autenticar(cpf, senha);
-            new menu(inv).setVisible(true);
+            carteiraController sessao = this.login.autenticar(cpf, senha);
+            new menu(sessao).setVisible(true);
             this.dispose();
-        } catch (IllegalArgumentException ex) {
-            javax.swing.JOptionPane.showMessageDialog(this, ex.getMessage(),
-                    "Erro de login", javax.swing.JOptionPane.ERROR_MESSAGE);
+        } catch (OperacaoException ex) {
+            Mensagem.erro(this, ex.getMessage(), "Erro de login");
         }
     }
 

@@ -46,41 +46,49 @@ public class cotacaoController {
      * Atualiza as 3 cotações no banco.
      *
      * @return texto com as cotações novas, pronto para o showMessageDialog
-     * @throws SQLException se der erro no banco
+     * @throws OperacaoException se der erro no banco
      */
-    public String atualizarCotacoes() throws SQLException {
-        // primeiro calcula tudo (lê do banco e sorteia), depois grava,
-        // para uma falha de leitura não deixar só uma parte atualizada
-        double[] novos = new double[MOEDAS.length];
-        for (int i = 0; i < MOEDAS.length; i++) {
-            novos[i] = novoValor(dao.buscar(MOEDAS[i]), random.nextDouble());
+    public String atualizarCotacoes() {
+        try {
+            // primeiro calcula tudo (lê do banco e sorteia), depois grava,
+            // para uma falha de leitura não deixar só uma parte atualizada
+            double[] novos = new double[MOEDAS.length];
+            for (int i = 0; i < MOEDAS.length; i++) {
+                novos[i] = novoValor(this.dao.buscar(MOEDAS[i]), this.random.nextDouble());
+            }
+            this.dao.salvarTodas(MOEDAS, novos);   // numa transação só: ou atualiza as 3 ou nenhuma
+        } catch (SQLException e) {
+            throw OperacaoException.erroBanco(e);
         }
-        dao.salvarTodas(MOEDAS, novos);   // numa transação só: ou atualiza as 3 ou nenhuma
-        return textoCotacoes();
+        return this.textoCotacoes();
     }
 
     /**
      * Monta o texto com as cotações atuais (útil também nas telas de compra e venda).
      *
      * @return uma linha por moeda, ex.: "Bitcoin: R$ 350000,00"
-     * @throws SQLException se der erro no banco
+     * @throws OperacaoException se der erro no banco
      */
-    public String textoCotacoes() throws SQLException {
-        return "Cotações atuais:\n\n" + linhasCotacoes();
+    public String textoCotacoes() {
+        return "Cotações atuais:\n\n" + this.linhasCotacoes();
     }
 
     /**
      * Monta só as linhas das cotações atuais, sem título (usado na tela de compra e venda).
      *
      * @return uma linha por moeda, ex.: "Bitcoin: R$ 350000,00"
-     * @throws SQLException se der erro no banco
+     * @throws OperacaoException se der erro no banco
      */
-    public String linhasCotacoes() throws SQLException {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < MOEDAS.length; i++) {
-            sb.append(String.format(BR, "%s: R$ %.2f%n", NOMES[i], dao.buscar(MOEDAS[i])));
+    public String linhasCotacoes() {
+        try {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < MOEDAS.length; i++) {
+                sb.append(String.format(BR, "%s: R$ %.2f%n", NOMES[i], this.dao.buscar(MOEDAS[i])));
+            }
+            return sb.toString();
+        } catch (SQLException e) {
+            throw OperacaoException.erroBanco(e);
         }
-        return sb.toString();
     }
 
     /**
@@ -88,9 +96,13 @@ public class cotacaoController {
      *
      * @param moeda sigla BTC, ETH ou XRP
      * @return valor em reais
-     * @throws SQLException se der erro no banco
+     * @throws OperacaoException se der erro no banco
      */
-    public double cotacaoDe(String moeda) throws SQLException {
-        return dao.buscar(moeda);
+    public double cotacaoDe(String moeda) {
+        try {
+            return this.dao.buscar(moeda);
+        } catch (SQLException e) {
+            throw OperacaoException.erroBanco(e);
+        }
     }
 }

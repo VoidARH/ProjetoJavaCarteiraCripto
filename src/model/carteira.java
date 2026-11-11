@@ -32,13 +32,13 @@ public class carteira {
     }
 
     /** @return saldo em reais */
-    public Real getReal()         { return real; }
+    public Real getReal()         { return this.real; }
     /** @return saldo em bitcoin */
-    public Bitcoin getBitcoin()   { return bitcoin; }
+    public Bitcoin getBitcoin()   { return this.bitcoin; }
     /** @return saldo em ethereum */
-    public Ethereum getEthereum() { return ethereum; }
+    public Ethereum getEthereum() { return this.ethereum; }
     /** @return saldo em ripple */
-    public Ripple getRipple()     { return ripple; }
+    public Ripple getRipple()     { return this.ripple; }
 
     /**
      * Arredonda um valor em reais para centavos.
@@ -68,7 +68,7 @@ public class carteira {
      */
     public boolean depositar(double valor) {
         if (!(valor > 0)) return false;
-        real.setSaldo(arredondarReais(real.getSaldo() + valor));
+        this.real.setSaldo(arredondarReais(this.real.getSaldo() + valor));
         return true;
     }
 
@@ -79,8 +79,8 @@ public class carteira {
      * @return true se sacou, false se o valor for inválido ou maior que o saldo
      */
     public boolean sacar(double valor) {
-        if (!(valor > 0) || valor > real.getSaldo()) return false;
-        real.setSaldo(arredondarReais(real.getSaldo() - valor));
+        if (!(valor > 0) || valor > this.real.getSaldo()) return false;
+        this.real.setSaldo(arredondarReais(this.real.getSaldo() - valor));
         return true;
     }
 
@@ -119,8 +119,8 @@ public class carteira {
         if (!(moeda instanceof Tarifacao t) || !(quantidade > 0) || !(cotacao > 0)) return false;
         double bruto = valorBruto(quantidade, cotacao);
         double total = arredondarReais(bruto + valorTaxa(bruto, t.taxaCompra()));
-        if (total > real.getSaldo()) return false;
-        real.setSaldo(arredondarReais(real.getSaldo() - total));
+        if (total > this.real.getSaldo()) return false;
+        this.real.setSaldo(arredondarReais(this.real.getSaldo() - total));
         moeda.setSaldo(arredondarCripto(moeda.getSaldo() + quantidade));
         return true;
     }
@@ -140,7 +140,25 @@ public class carteira {
         double bruto = valorBruto(quantidade, cotacao);
         double liquido = arredondarReais(bruto - valorTaxa(bruto, t.taxaVenda()));
         moeda.setSaldo(arredondarCripto(moeda.getSaldo() - quantidade));
-        real.setSaldo(arredondarReais(real.getSaldo() + liquido));
+        this.real.setSaldo(arredondarReais(this.real.getSaldo() + liquido));
         return true;
+    }
+
+    /**
+     * Cópia dos saldos atuais, na ordem: reais, bitcoin, ethereum, ripple.
+     * Devolve uma cópia (e não os próprios objetos), então quem chama não consegue
+     * alterar a carteira por aqui.
+     */
+    public double[] copiarSaldos() {
+        return new double[] {this.real.getSaldo(), this.bitcoin.getSaldo(),
+                             this.ethereum.getSaldo(), this.ripple.getSaldo()};
+    }
+
+    /** Desfaz uma operação na memória: volta os saldos para os de {@link #copiarSaldos()}. */
+    public void restaurarSaldos(double[] saldos) {
+        this.real.setSaldo(saldos[0]);
+        this.bitcoin.setSaldo(saldos[1]);
+        this.ethereum.setSaldo(saldos[2]);
+        this.ripple.setSaldo(saldos[3]);
     }
 }

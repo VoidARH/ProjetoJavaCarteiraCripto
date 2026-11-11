@@ -4,6 +4,10 @@
  */
 package view;
 
+import controller.OperacaoException;
+import controller.carteiraController;
+import controller.cotacaoController;
+
 /**
  *
  * @author void
@@ -12,22 +16,27 @@ public class menu extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(menu.class.getName());
 
-    /**
-     * Creates new form menu
-     */
-    private model.Investidor investidor; // quem fez login
+    /** Controller do investidor logado (o menu não conhece o model). */
+    private carteiraController ctrl;
+    private final cotacaoController cotacoes = new cotacaoController();
 
     public menu() {
-        initComponents();
-        bt_sair.addActionListener(e -> sair());
-        bt_saldo.addActionListener(e -> consultarSaldo());
-        bt_extrato.addActionListener(e -> consultarExtrato());
-        bt_deposito.addActionListener(e -> abrir(new depositar(investidor)));
-        bt_sacar.addActionListener(e -> abrir(new sacar(investidor)));
-        bt_operacao.addActionListener(e -> operarCripto());
-        bt_atualizar.addActionListener(e -> atualizarCotacao());
+        this.initComponents();
+        this.bt_sair.addActionListener(e -> this.sair());
+        this.bt_saldo.addActionListener(e -> this.consultarSaldo());
+        this.bt_extrato.addActionListener(e -> this.consultarExtrato());
+        this.bt_deposito.addActionListener(e -> this.abrir(new depositar(this.ctrl)));
+        this.bt_sacar.addActionListener(e -> this.abrir(new sacar(this.ctrl)));
+        this.bt_operacao.addActionListener(e -> this.operarCripto());
+        this.bt_atualizar.addActionListener(e -> this.atualizarCotacao());
     }
-    
+
+    public menu(carteiraController ctrl) {
+        this();
+        this.ctrl = ctrl;
+        this.setLocationRelativeTo(null);
+    }
+
     /** Encerra a sessão e volta para a tela de login. */
     private void sair() {
         int op = javax.swing.JOptionPane.showConfirmDialog(this,
@@ -36,100 +45,77 @@ public class menu extends javax.swing.JFrame {
         if (op != javax.swing.JOptionPane.YES_OPTION) {
             return;
         }
-        investidor = null;                 // esquece quem estava logado
+        this.ctrl = null;                  // esquece quem estava logado
         new Login().setVisible(true);      // nova tela de login (com campos limpos)
         this.dispose();                    // fecha o menu
     }
 
-    public menu(model.Investidor investidor) {
-        this();
-        this.investidor = investidor;
-        setLocationRelativeTo(null);
-    }
-    
- /**
- Pede a senha numa caixinha
- @return a senha digitada, ou null se a pessoa cancelou
- **/
-private String pedirSenha() {
-    javax.swing.JPasswordField campo = new javax.swing.JPasswordField();
-    int op = javax.swing.JOptionPane.showConfirmDialog(this, campo,
-            "Digite sua senha (6 dígitos):",
-            javax.swing.JOptionPane.OK_CANCEL_OPTION, javax.swing.JOptionPane.PLAIN_MESSAGE);
-    if (op != javax.swing.JOptionPane.OK_OPTION) {
-        return null;
-    }
-    return new String(campo.getPassword());
-}
-
-/** Pede a senha e, se estiver correta, mostra o saldo da carteira. **/
-private void consultarSaldo() {
-    String senha = pedirSenha();
-    if (senha == null) {
-        return; // cancelou
-    }
-    controller.carteiraController ctrl = new controller.carteiraController(investidor);
-    if (!ctrl.senhaConfere(senha)) {
-        javax.swing.JOptionPane.showMessageDialog(this, "Senha incorreta!",
-                "Erro", javax.swing.JOptionPane.ERROR_MESSAGE);
-        return;
-    }
-    javax.swing.JOptionPane.showMessageDialog(this, ctrl.textoSaldo(),
-            "Saldo", javax.swing.JOptionPane.INFORMATION_MESSAGE);
-}
-
-/** Pede a senha e, se estiver correta, abre o extrato. **/
-private void consultarExtrato() {
-    if (senhaConfere()) {
-        abrir(new extrato(investidor));
-    }
-}
-
-/** Pede a senha e, se estiver correta, abre a tela de compra e venda. **/
-private void operarCripto() {
-    if (senhaConfere()) {
-        abrir(new operacao(investidor));
-    }
-}
-
-/** Sorteia a nova cotação das 3 moedas (variação de no máximo 5%) e mostra o resultado. **/
-private void atualizarCotacao() {
-    try {
-        String texto = new controller.cotacaoController().atualizarCotacoes();
-        javax.swing.JOptionPane.showMessageDialog(this, texto,
-                "Cotações atualizadas", javax.swing.JOptionPane.INFORMATION_MESSAGE);
-    } catch (java.sql.SQLException ex) {
-        javax.swing.JOptionPane.showMessageDialog(this, "Erro no banco de dados: " + ex.getMessage(),
-                "Erro", javax.swing.JOptionPane.ERROR_MESSAGE);
-    }
-}
-
-/** Pede a senha; mostra "Senha incorreta!" se errar. @return true se a senha confere **/
-private boolean senhaConfere() {
-    String senha = pedirSenha();
-    if (senha == null) {
-        return false; // cancelou
-    }
-    if (!new controller.carteiraController(investidor).senhaConfere(senha)) {
-        javax.swing.JOptionPane.showMessageDialog(this, "Senha incorreta!",
-                "Erro", javax.swing.JOptionPane.ERROR_MESSAGE);
-        return false;
-    }
-    return true;
-}
-
-/** Mostra a tela e deixa o menu travado até ela ser fechada. **/
-private void abrir(javax.swing.JFrame tela) {
-    setEnabled(false);
-    tela.addWindowListener(new java.awt.event.WindowAdapter() {
-        @Override
-        public void windowClosed(java.awt.event.WindowEvent e) {
-            setEnabled(true);
-            toFront();
+    private void consultarSaldo() {
+        if (this.senhaConfere()) {
+            Mensagem.info(this, this.ctrl.textoSaldo(), "Saldo");
         }
-    });
-    tela.setVisible(true);
-}
+    }
+
+    private void consultarExtrato() {
+        if (this.senhaConfere()) {
+            this.abrir(new extrato(this.ctrl));
+        }
+    }
+
+    private void operarCripto() {
+        if (this.senhaConfere()) {
+            this.abrir(new operacao(this.ctrl));
+        }
+    }
+
+    private void atualizarCotacao() {
+        try {
+            Mensagem.info(this, this.cotacoes.atualizarCotacoes(), "Cotações atualizadas");
+        } catch (OperacaoException ex) {
+            Mensagem.erro(this, ex.getMessage());
+        }
+    }
+
+    /**
+     * Pede a senha numa caixinha (campo mascarado).
+     * @return a senha digitada, ou null se a pessoa cancelou
+     */
+    private String pedirSenha() {
+        javax.swing.JPasswordField campo = new javax.swing.JPasswordField();
+        int op = javax.swing.JOptionPane.showConfirmDialog(this, campo,
+                "Digite sua senha (6 dígitos):",
+                javax.swing.JOptionPane.OK_CANCEL_OPTION, javax.swing.JOptionPane.PLAIN_MESSAGE);
+        if (op != javax.swing.JOptionPane.OK_OPTION) {
+            return null;
+        }
+        return new String(campo.getPassword());
+    }
+
+    /** Pede a senha e confere com o controller; avisa se estiver errada. */
+    private boolean senhaConfere() {
+        String senha = this.pedirSenha();
+        if (senha == null) {
+            return false; // cancelou
+        }
+        if (!this.ctrl.senhaConfere(senha)) {
+            Mensagem.erro(this, "Senha incorreta!");
+            return false;
+        }
+        return true;
+    }
+
+    /** Abre outra tela e trava o menu até ela fechar. */
+    private void abrir(javax.swing.JFrame tela) {
+        this.setEnabled(false);
+        tela.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosed(java.awt.event.WindowEvent e) {
+                menu.this.setEnabled(true);
+                menu.this.toFront();
+            }
+        });
+        tela.setVisible(true);
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.

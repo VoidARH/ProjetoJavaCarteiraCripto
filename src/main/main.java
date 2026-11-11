@@ -13,8 +13,7 @@ import view.Login;
 public class main {
 
     public static void main(String[] args) {
-        Login view = new Login();
-        view.setVisible(true);
-        view.setLocationRelativeTo(null);
+        // a tela precisa ser criada na thread própria do Swing
+        java.awt.EventQueue.invokeLater(() -> new Login().setVisible(true));
     }
 }

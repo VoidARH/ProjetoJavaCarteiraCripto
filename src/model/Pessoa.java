@@ -21,11 +21,11 @@ public abstract class Pessoa {
         this.senha = senha;
     }
 
-    public String getNome() { return nome; }
-    public String getCpf()  { return cpf; }
+    public String getNome() { return this.nome; }
+    public String getCpf()  { return this.cpf; }
 
     /** true se a senha informada e igual z senha da pessoa **/
     public boolean senhaCorreta(String tentativa) {
-        return senha.equals(tentativa);
+        return this.senha.equals(tentativa);
     }
 }

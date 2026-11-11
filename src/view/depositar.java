@@ -4,6 +4,9 @@
  */
 package view;
 
+import controller.OperacaoException;
+import controller.carteiraController;
+
 /**
  * Tela de depósito: o investidor informa o valor e vê os saldos atualizados.
  *
@@ -13,25 +16,18 @@ public class depositar extends javax.swing.JFrame {
 
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(depositar.class.getName());
 
-    private model.Investidor investidor; // quem fez login
+    /** Controller do investidor logado (a tela não conhece o model). */
+    private carteiraController ctrl;
 
-    /**
-     * Creates new form depositar
-     */
     public depositar() {
-        initComponents();
-        setLocationRelativeTo(null);
+        this.initComponents();
+        this.setLocationRelativeTo(null);
     }
 
-    /**
-     * Abre a tela para o investidor logado.
-     *
-     * @param investidor quem fez login
-     */
-    public depositar(model.Investidor investidor) {
+    public depositar(carteiraController ctrl) {
         this();
-        this.investidor = investidor;
-        getRootPane().setDefaultButton(bt_confirmar);
+        this.ctrl = ctrl;
+        this.getRootPane().setDefaultButton(this.bt_confirmar);
     }
 
     /**
@@ -94,22 +90,16 @@ public class depositar extends javax.swing.JFrame {
 
     private void bt_confirmarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bt_confirmarActionPerformed
         try {
-            double valor = controller.carteiraController.lerValor(txt_valor.getText());
-            String saldos = new controller.carteiraController(investidor).depositar(valor);
-            javax.swing.JOptionPane.showMessageDialog(this, saldos,
-                    "Saldos atualizados", javax.swing.JOptionPane.INFORMATION_MESSAGE);
-            dispose();
-        } catch (IllegalArgumentException ex) {
-            javax.swing.JOptionPane.showMessageDialog(this, ex.getMessage(),
-                    "Erro", javax.swing.JOptionPane.ERROR_MESSAGE);
-        } catch (java.sql.SQLException ex) {
-            javax.swing.JOptionPane.showMessageDialog(this, "Erro no banco de dados: " + ex.getMessage(),
-                    "Erro", javax.swing.JOptionPane.ERROR_MESSAGE);
+            String saldos = this.ctrl.depositar(this.txt_valor.getText());
+            Mensagem.info(this, saldos, "Saldos atualizados");
+            this.dispose();
+        } catch (OperacaoException ex) {
+            Mensagem.erro(this, ex.getMessage());
         }
     }//GEN-LAST:event_bt_confirmarActionPerformed
 
     private void bt_cancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bt_cancelarActionPerformed
-        dispose();
+        this.dispose();
     }//GEN-LAST:event_bt_cancelarActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

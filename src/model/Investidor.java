@@ -18,5 +18,5 @@ public class Investidor extends Pessoa {
         this.carteira = carteira;
     }
 
-    public carteira getCarteira() { return carteira; }
+    public carteira getCarteira() { return this.carteira; }
 }

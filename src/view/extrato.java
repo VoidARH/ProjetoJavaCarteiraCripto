@@ -4,6 +4,9 @@
  */
 package view;
 
+import controller.OperacaoException;
+import controller.carteiraController;
+
 /**
  * Tela do extrato de operações do investidor.
  *
@@ -13,35 +16,26 @@ public class extrato extends javax.swing.JFrame {
 
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(extrato.class.getName());
 
-    private model.Investidor investidor; // quem fez login
+    /** Controller do investidor logado (a tela não conhece o model). */
+    private carteiraController ctrl;
 
-    /**
-     * Creates new form extrato
-     */
     public extrato() {
-        initComponents();
-        setLocationRelativeTo(null);
+        this.initComponents();
+        this.setLocationRelativeTo(null);
     }
 
-    /**
-     * Abre a tela para o investidor logado.
-     *
-     * @param investidor quem fez login
-     */
-    public extrato(model.Investidor investidor) {
+    public extrato(carteiraController ctrl) {
         this();
-        this.investidor = investidor;
-        carregar();
+        this.ctrl = ctrl;
+        this.carregar();
     }
 
-    /** Busca o extrato no banco e mostra na tela. */
     private void carregar() {
         try {
-            txt_extrato.setText(new controller.carteiraController(investidor).consultarExtrato());
-            txt_extrato.setCaretPosition(0);
-        } catch (java.sql.SQLException ex) {
-            javax.swing.JOptionPane.showMessageDialog(this, "Erro no banco de dados: " + ex.getMessage(),
-                    "Erro", javax.swing.JOptionPane.ERROR_MESSAGE);
+            this.txt_extrato.setText(this.ctrl.consultarExtrato());
+            this.txt_extrato.setCaretPosition(0);
+        } catch (OperacaoException ex) {
+            Mensagem.erro(this, ex.getMessage());
         }
     }
 
@@ -96,7 +90,7 @@ public class extrato extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void bt_fecharActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bt_fecharActionPerformed
-        dispose();
+        this.dispose();
     }//GEN-LAST:event_bt_fecharActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

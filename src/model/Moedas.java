@@ -19,7 +19,12 @@ public abstract class Moedas {
         this.saldo = saldo;
     }
 
-    public String getNome()  { return nome; }
-    public double getSaldo() { return saldo; }
-    public void setSaldo(double saldo) { this.saldo = saldo; }
+    public String getNome()  { return this.nome; }
+    public double getSaldo() { return this.saldo; }
+    /**
+     * Sem "public" de propósito: só as classes do pacote model (a carteira) podem
+     * alterar o saldo. Quem está fora (controller, view) precisa usar os métodos da
+     * carteira, que validam a operação antes de mexer no saldo.
+     */
+    void setSaldo(double saldo) { this.saldo = saldo; }
 }
